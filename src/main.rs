@@ -1,9 +1,10 @@
-mod parse_all;
+use json_parser::json;
 
 use std::fs::File;
 use std::io;
 use std::io::prelude::*;
 use std::path::Path;
+use json::to_object;
 
 fn read_file<P : AsRef<Path>>(path: P) -> io::Result<String> {
     let mut file = File::open(path)?;
@@ -13,5 +14,6 @@ fn read_file<P : AsRef<Path>>(path: P) -> io::Result<String> {
 }
 
 fn main() {
-    println!("Hello, world!");
+
+    let val = to_object("{}");
 }
