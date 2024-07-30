@@ -15,5 +15,7 @@ fn read_file<P : AsRef<Path>>(path: P) -> io::Result<String> {
 
 fn main() {
 
-    let val = to_object("{}");
+    let val = read_file("D:/experiments/rust/json_parser/tests/64KB.json").expect("Failed TO Load");
+    let json = to_object(&*val);
+    print!("Done");
 }

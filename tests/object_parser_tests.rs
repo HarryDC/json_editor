@@ -37,4 +37,10 @@ fn test_json_parse_object() {
     assert_eq!(to_object("{\"one\" : 1, \"two\":2}"), Ok(JsonTypeObject(Vec::from([pair_1.clone(), pair_2.clone()]))));
 }
 
+#[test]
+fn test_json_parse_file() {
+
+}
+
+
 
