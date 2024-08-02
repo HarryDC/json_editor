@@ -1,12 +1,12 @@
-
+use crate::json::{Array, Object};
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum JsonValueType {
     JsonTypeNull,
     JsonTypeBool(bool),
     JsonTypeNumber(f64),
-    JsonTypeObject(Vec<(JsonValueType,JsonValueType)>), // Is a vector with pairwise entries, key, value
-    JsonTypeArray(Vec<JsonValueType>), // Is a vector, all entries are plain
+    JsonTypeObject(Object), // Is a vector with pairwise entries, key, value
+    JsonTypeArray(Array), // Is a vector, all entries are plain
     JsonTypeString(String)
 }
 
@@ -40,14 +40,14 @@ impl JsonValueType {
         }
     }
 
-    fn as_array(&self) -> Option<&Vec<JsonValueType>> {
+    fn as_array(&self) -> Option<&Array> {
         match self {
             JsonValueType::JsonTypeArray(val) => Option::from(val),
             _ => None
         }
     }
 
-    fn as_object(&self) -> Option<&Vec<(JsonValueType,JsonValueType)>> {
+    fn as_object(&self) -> Option<&Object> {
         match self {
             JsonValueType::JsonTypeObject(val) => Option::from(val),
             _ => None

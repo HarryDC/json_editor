@@ -12,3 +12,8 @@ name = "json_parser"
 path = "src/lib.rs"
 
 [dependencies]
+eframe = "0.28.1"
+egui = "0.28.1"
+egui-modal = "0.4.0"
+egui_extras = "0.28.1"
+rfd = "0.14.1"

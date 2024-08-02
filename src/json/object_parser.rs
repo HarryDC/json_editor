@@ -1,6 +1,7 @@
 
 use super::error::Error;
 use super::error::Error::{EndOfLine};
+use super::Object;
 use super::value::JsonValueType;
 use super::value::JsonValueType::{JsonTypeArray, JsonTypeBool, JsonTypeNull, JsonTypeNumber, JsonTypeObject, JsonTypeString};
 use super::state::State;
@@ -40,7 +41,7 @@ pub(crate) fn parse_value(state : &mut State) -> Result<JsonValueType, Error> {
 
 fn parse_object(state: &mut State) -> Result<JsonValueType, Error> {
 
-    let mut result = Vec::new();
+    let mut result = Object::new();
 
     if state.read_char('}') {
         return Ok(JsonTypeObject(result))
@@ -48,14 +49,15 @@ fn parse_object(state: &mut State) -> Result<JsonValueType, Error> {
 
     loop {
         let key = parse_value(state);
+        let key_string: String;
         match key {
-            Ok(JsonTypeString(_)) => (),
+            Ok(JsonTypeString(val)) => key_string = val,
             _ => return Err(state.error())
         }
         if !state.read_char(':') { return Err(state.error())}
         let value = parse_value(state);
         if value.is_err() {return Err(state.error());}
-        result.push((key.unwrap(),value.unwrap()));
+        result.insert(key_string, value.unwrap());
         if state.read_char('}') {break;}
         else if state.read_char(',') {continue;}
         else {return Err(state.error())}

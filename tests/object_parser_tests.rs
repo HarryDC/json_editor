@@ -30,8 +30,8 @@ fn test_json_parse_number() {
 
 #[test]
 fn test_json_parse_object() {
-    let pair_1 = (JsonTypeString("one".parse().unwrap()), JsonTypeNumber(1.0));
-    let pair_2 = (JsonTypeString("two".parse().unwrap()), JsonTypeNumber(2.0));
+    let pair_1 = ("one".to_string(), JsonTypeNumber(1.0));
+    let pair_2 = ("two".to_string(), JsonTypeNumber(2.0));
     assert_eq!(to_object("{}"), Ok(JsonTypeObject(Vec::new())));
     assert_eq!(to_object("{\"one\" : 1}"), Ok(JsonTypeObject(Vec::from([pair_1.clone()]))));
     assert_eq!(to_object("{\"one\" : 1, \"two\":2}"), Ok(JsonTypeObject(Vec::from([pair_1.clone(), pair_2.clone()]))));
