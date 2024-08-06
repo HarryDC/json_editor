@@ -5,6 +5,7 @@ use std::fs;
 use std::path::PathBuf;
 use eframe::egui;
 use egui::scroll_area::ScrollBarVisibility::VisibleWhenNeeded;
+use egui::WidgetType::CollapsingHeader;
 use egui_modal::Modal;
 use json_parser::json::to_object;
 use json_parser::json::value::JsonValueType;
@@ -50,12 +51,13 @@ fn load_json(path: &PathBuf) -> Option<JsonValueType> {
 }
 
 fn simple_json_view(ui: &mut egui::Ui, value: &JsonValueType) {
-    egui::ScrollArea::both().scroll_bar_visibility(VisibleWhenNeeded).show(ui, |ui| {
-        ui.with_layout(
-            egui::Layout::top_down(egui::Align::LEFT).with_cross_justify(true),
+    egui::ScrollArea::both().scroll_bar_visibility(VisibleWhenNeeded)
+        .auto_shrink([false, false])
+        .show(ui, |ui| {
+            ui.with_layout(egui::Layout::top_down(egui::Align::LEFT).with_cross_justify(true),
             |ui| draw_json_value(ui, value));
-            },
-        );
+        },
+    );
 }
 
 fn draw_json_value(ui: &mut egui::Ui, value: &JsonValueType) {
@@ -78,10 +80,7 @@ fn draw_json_value(ui: &mut egui::Ui, value: &JsonValueType) {
             ui.with_layout(egui::Layout::top_down(egui::Align::LEFT), |ui| {
                 for (i, item) in val.iter().enumerate()
                 {
-                    ui.with_layout(egui::Layout::left_to_right(egui::Align::TOP), |ui| {
-                        ui.label(i.to_string());
-                        draw_json_value(ui, item);
-                    });
+                    egui::CollapsingHeader::new(i.to_string()).show(ui, |ui| draw_json_value(ui,item) );
                 }
             }
             );
@@ -89,10 +88,6 @@ fn draw_json_value(ui: &mut egui::Ui, value: &JsonValueType) {
         JsonValueType::JsonTypeString(val) => {ui.label(val);}
     }
 }
-
-
-
-
 
 impl JsonEditor {
 
