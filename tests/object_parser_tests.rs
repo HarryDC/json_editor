@@ -1,6 +1,7 @@
-use json_parser::json::error::Error::EndOfLine;
-use json_parser::json::to_object;
-use json_parser::json::value::JsonValueType::{JsonTypeArray, JsonTypeBool, JsonTypeNumber, JsonTypeObject, JsonTypeString};
+use std::collections::HashMap;
+use json_editor::json::error::Error::EndOfLine;
+use json_editor::json::to_object;
+use json_editor::json::value::JsonValueType::{JsonTypeArray, JsonTypeBool, JsonTypeNumber, JsonTypeObject, JsonTypeString};
 
 #[test]
 fn test_parse_bool() {
@@ -32,9 +33,9 @@ fn test_json_parse_number() {
 fn test_json_parse_object() {
     let pair_1 = ("one".to_string(), JsonTypeNumber(1.0));
     let pair_2 = ("two".to_string(), JsonTypeNumber(2.0));
-    assert_eq!(to_object("{}"), Ok(JsonTypeObject(Vec::new())));
-    assert_eq!(to_object("{\"one\" : 1}"), Ok(JsonTypeObject(Vec::from([pair_1.clone()]))));
-    assert_eq!(to_object("{\"one\" : 1, \"two\":2}"), Ok(JsonTypeObject(Vec::from([pair_1.clone(), pair_2.clone()]))));
+    assert_eq!(to_object("{}"), Ok(JsonTypeObject(HashMap::new())));
+    assert_eq!(to_object("{\"one\" : 1}"), Ok(JsonTypeObject(HashMap::from([pair_1.clone()]))));
+    assert_eq!(to_object("{\"one\" : 1, \"two\":2}"), Ok(JsonTypeObject(HashMap::from([pair_1.clone(), pair_2.clone()]))));
 }
 
 #[test]

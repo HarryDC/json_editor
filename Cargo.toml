@@ -1,14 +1,14 @@
 [package]
-name = "json_parser"
+name = "json_editor"
 version = "0.1.0"
 edition = "2021"
 
 [[bin]]
-name = "run_parser"
+name = "run_editor"
 path = "src/main.rs"
 
 [lib]
-name = "json_parser"
+name = "json_editor"
 path = "src/lib.rs"
 
 [dependencies]
