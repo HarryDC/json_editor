@@ -1,35 +1,22 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")] // hide console window on Windows in release
 #![allow(rustdoc::missing_crate_level_docs)] // it's an example
 
+use std::default::Default;
 use std::fs;
 use std::path::PathBuf;
 use eframe::egui;
 use egui::scroll_area::ScrollBarVisibility::VisibleWhenNeeded;
-use egui::WidgetType::CollapsingHeader;
 use egui_modal::Modal;
 use json_editor::json::to_object;
 use json_editor::json::value::JsonValueType;
 
-fn main() -> eframe::Result {
-    //env_logger::init(); // Log to stderr (if you run with `RUST_LOG=debug`).
-    let options = eframe::NativeOptions {
-        viewport: egui::ViewportBuilder::default().with_inner_size([320.0, 240.0]),
-        ..Default::default()
-    };
-    eframe::run_native(
-        "My egui App",
-        options,
-        Box::new(|cc| {
-            // This gives us image support:
-            egui_extras::install_image_loaders(&cc.egui_ctx);
 
-            Ok(Box::<JsonEditor>::default())
-        }),
-    )
-}
 
+#[derive(serde::Deserialize, serde::Serialize)]
+#[serde(default)] // if we add new fields, give them default values when deserializing old state
 struct JsonEditor {
     current_file: Option<String>,
+    #[serde(skip)]
     current_data: Option<JsonValueType>
  }
 
@@ -40,6 +27,24 @@ impl Default for JsonEditor {
             current_data: None,
         }
     }
+}
+
+fn main() -> eframe::Result {
+    //env_logger::init(); // Log to stderr (if you run with `RUST_LOG=debug`).
+    let options = eframe::NativeOptions {
+        viewport: egui::ViewportBuilder::default().with_inner_size([320.0, 240.0]),
+        ..Default::default()
+    };
+    eframe::run_native(
+        "HAS Json editor",
+        options,
+        Box::new(|cc| {
+            // This gives us image support:
+            egui_extras::install_image_loaders(&cc.egui_ctx);
+
+            Ok(Box::new(JsonEditor::new(cc)))
+        }),
+    )
 }
 
 fn load_json(path: &PathBuf) -> Option<JsonValueType> {
@@ -90,11 +95,36 @@ fn draw_json_value(ui: &mut egui::Ui, value: &JsonValueType) {
 }
 
 impl JsonEditor {
+    fn new(cc: &eframe::CreationContext<'_>) -> Self {
+        // This is also where you can customize the look and feel of egui using
+        // `cc.egui_ctx.set_visuals` and `cc.egui_ctx.set_fonts`.
+
+        // Load previous app state (if any).
+        // Note that you must enable the `persistence` feature for this to work.
+        if let Some(storage) = cc.storage {
+            let mut app : JsonEditor = eframe::get_value(storage, eframe::APP_KEY).unwrap_or_default();
+            if let Some(name) = &app.current_file {
+                let path = PathBuf::from(name);
+                app.current_data = load_json(&path);
+                if ! app.current_data.is_some() {
+                    app.current_file = None;
+                }
+
+            }
+            app
+        } else {
+            Default::default()
+        }
+
+    }
 
     fn show_menu(&mut self, ui: &mut egui::Ui, modal: &Modal) {
         use egui::menu;
         menu::bar(ui, |ui| {
             ui.menu_button("File", |ui| {
+                if ui.button("Quit").clicked() {
+                    ui.ctx().send_viewport_cmd(egui::ViewportCommand::Close);
+                }
                 if ui.button("Open").clicked()  {
                     if let Some(path) = rfd::FileDialog::new().pick_file() {
                         self.current_data = load_json(&path);
@@ -111,10 +141,6 @@ impl JsonEditor {
                 }
             });
         });
-    }
-
-    fn new(_cc: &eframe::CreationContext) -> Self {
-        Self::default()
     }
 }
 
@@ -136,5 +162,9 @@ impl eframe::App for JsonEditor {
         }
 
         modal.show_dialog();
+    }
+
+    fn save(&mut self, storage: &mut dyn eframe::Storage) {
+        eframe::set_value(storage, eframe::APP_KEY, self);
     }
 }

@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 use json_editor::json::error::Error::EndOfLine;
 use json_editor::json::to_object;
+use json_editor::json::value::JsonValueType;
 use json_editor::json::value::JsonValueType::{JsonTypeArray, JsonTypeBool, JsonTypeNumber, JsonTypeObject, JsonTypeString};
 
 #[test]
@@ -39,8 +40,56 @@ fn test_json_parse_object() {
 }
 
 #[test]
-fn test_json_parse_file() {
+fn test_array_value_to_string() {
+    {
+        let json = r#"[]
+"#;
 
+        let converted = to_object(json).unwrap();
+        let result = converted.to_string();
+        assert_eq!(json, result);
+    }
+    {
+        let json = r#"["one", "two", "three"]
+        "#;
+
+        let converted = to_object(json).unwrap();
+        let result = converted.to_string();
+        assert_eq!(json, result);
+    }
+}
+#[test]
+fn test_object_value_to_string() {
+    {
+        let json = r#"{}
+"#;
+
+        let converted = to_object(json).unwrap();
+        let result = converted.to_string();
+        assert_eq!(json, result);
+    }
+    // Fix later
+//     {
+//         let json = r#"{"three" : 1.1, "two" : "value", "one" : true}
+// "#;
+//         let expected = vec!["1.1", "value", "true"];
+//         let keys  = vec!["three", "two", "one"];
+//
+//         let converted = to_object(json).unwrap();
+//         let result = converted.to_string();
+//         // Can't check against string as ordering changes due to hash map
+//
+//         if let Some(obj) = match converted {
+//             JsonTypeObject(obj) => {Some(obj)},
+//             _ => None
+//         } {
+//             assert_eq!(obj.len(), 3)
+//
+//         } else {
+//             assert!(false)
+//         }
+//
+//     }
 }
 
 

@@ -61,4 +61,49 @@ impl JsonValueType {
             _ => None
         }
     }
+
+    pub fn to_string(&self) -> String {
+        match &self {
+            JsonValueType::JsonTypeNull => "null".to_string(),
+            JsonValueType::JsonTypeBool(val) => {
+                if *val { "true".to_string() }
+                else { "false".to_string() }
+            }
+            JsonValueType::JsonTypeNumber(val) => { val.to_string() }
+            JsonValueType::JsonTypeObject(val) => {
+                    let mut result = "{".to_string();
+                    for (index,(key,value)) in val.iter().enumerate() {
+                        result = format!("{}\"{}\" : {}",result, key, value.to_string());
+                        if index < val.len() - 1 {
+                            result += ", ";
+                        }
+                    }
+                result + "}\n"
+            }
+            JsonValueType::JsonTypeArray(val) => {
+                    let mut result : String = "[".to_string();
+                    for (i, item) in val.iter().enumerate()
+                    {
+                        if i != 0 {
+                            result = format!("{}, {}", result, item.to_string());
+                        } else {
+                            result = format!("{}{}", result, item.to_string());
+                        }
+                    }
+
+                    result + "]\n"
+            }
+            JsonValueType::JsonTypeString(val) => { format!("\"{}\"", val) }
+        }
+    }
+}
+
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    #[test]
+    fn test_to_string_array() {
+
+    }
 }
