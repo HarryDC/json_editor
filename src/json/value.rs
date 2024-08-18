@@ -56,8 +56,8 @@ impl JsonValueType {
 
     pub fn len(&self) -> Option<usize> {
         match self {
-            JsonValueType::JsonTypeObject(vec) => Option::from(vec.len()),
-            JsonValueType::JsonTypeArray(vec) => Option::from(vec.len()),
+            JsonValueType::JsonTypeObject(Object(vec)) => Option::from(vec.len()),
+            JsonValueType::JsonTypeArray(Array(vec)) => Option::from(vec.len()),
             _ => None
         }
     }
@@ -70,7 +70,7 @@ impl JsonValueType {
                 else { "false".to_string() }
             }
             JsonValueType::JsonTypeNumber(val) => { val.to_string() }
-            JsonValueType::JsonTypeObject(val) => {
+            JsonValueType::JsonTypeObject(Object(val)) => {
                     let mut result = "{".to_string();
                     for (index,(key,value)) in val.iter().enumerate() {
                         result = format!("{}\"{}\" : {}",result, key, value.to_string());
@@ -80,7 +80,7 @@ impl JsonValueType {
                     }
                 result + "}\n"
             }
-            JsonValueType::JsonTypeArray(val) => {
+            JsonValueType::JsonTypeArray(Array(val)) => {
                     let mut result : String = "[".to_string();
                     for (i, item) in val.iter().enumerate()
                     {

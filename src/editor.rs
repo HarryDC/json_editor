@@ -1,8 +1,10 @@
 use std::fs;
+use std::hash::Hasher;
 use std::path::PathBuf;
+use egui::{Label, Sense, Ui};
 use egui::scroll_area::ScrollBarVisibility::VisibleWhenNeeded;
 use egui_modal::Modal;
-use json_editor::json::to_object;
+use json_editor::json::{Array, to_object};
 use json_editor::json::value::JsonValueType;
 
 #[derive(serde::Deserialize, serde::Serialize)]
@@ -115,31 +117,56 @@ fn simple_json_view(ui: &mut egui::Ui, value: &JsonValueType) {
         );
 }
 
+
+
 fn draw_json_value(ui: &mut egui::Ui, value: &JsonValueType) {
     match value {
         JsonValueType::JsonTypeNull => {ui.label("null");}
-        JsonValueType::JsonTypeBool(val) => {if *val {ui.label("true");}
-        else {ui.label("false");}}
+        JsonValueType::JsonTypeBool(val) => {
+            let text : String;
+            if *val {
+                text = "true".to_owned();
+            } else {
+                text = "false".to_owned();
+            }
+            if ui.add(Label::new(text).sense(Sense::click())).clicked()
+            {
+                show_edit_panel(ui, value);
+            }
+        }
         JsonValueType::JsonTypeNumber(val) => {ui.label(val.to_string());}
-        JsonValueType::JsonTypeObject(val) => {
-            ui.with_layout(egui::Layout::top_down(egui::Align::LEFT), |ui| {
-                for item in val {
-                    ui.with_layout(egui::Layout::left_to_right(egui::Align::TOP), |ui| {
-                        ui.label(item.0);
-                        draw_json_value(ui, &item.1);
-                    });
-                }
+        JsonValueType::JsonTypeObject(obj) => {
+            egui::CollapsingHeader::new("").id_source(obj).show(ui, |ui| {
+                ui.with_layout(egui::Layout::top_down(egui::Align::LEFT), |ui| {
+                    for item in obj.0.iter() {
+                        ui.with_layout(egui::Layout::left_to_right(egui::Align::TOP), |ui| {
+                            ui.label(item.0);
+                            draw_json_value(ui, &item.1);
+                        });
+                    }
+                });
             });
         }
-        JsonValueType::JsonTypeArray(val) => {
+        JsonValueType::JsonTypeArray(Array(val)) => {
             ui.with_layout(egui::Layout::top_down(egui::Align::LEFT), |ui| {
                 for (i, item) in val.iter().enumerate()
                 {
-                    egui::CollapsingHeader::new(i.to_string()).show(ui, |ui| draw_json_value(ui,item) );
+                    ui.with_layout(egui::Layout::left_to_right(egui::Align::TOP), |ui| {
+                        ui.label(i.to_string() + " : ");
+                        draw_json_value(ui, item);
+                    });
                 }
             }
             );
         }
         JsonValueType::JsonTypeString(val) => {ui.label(val);}
     }
+}
+
+fn show_edit_panel(ui: &mut Ui, value: &JsonValueType) {
+    egui::SidePanel::right("Properties").show(ui.ctx(), |ui| draw_edit_panel(ui, value));
+}
+
+fn draw_edit_panel(ui: &mut Ui, value: &JsonValueType)  {
+
 }

@@ -1,7 +1,7 @@
-
+use std::collections::HashMap;
 use super::error::Error;
 use super::error::Error::{EndOfLine};
-use super::Object;
+use super::{Array, Object};
 use super::value::JsonValueType;
 use super::value::JsonValueType::{JsonTypeArray, JsonTypeBool, JsonTypeNull, JsonTypeNumber, JsonTypeObject, JsonTypeString};
 use super::state::State;
@@ -41,10 +41,10 @@ pub(crate) fn parse_value(state : &mut State) -> Result<JsonValueType, Error> {
 
 fn parse_object(state: &mut State) -> Result<JsonValueType, Error> {
 
-    let mut result = Object::new();
+    let mut result = HashMap::new();
 
     if state.read_char('}') {
-        return Ok(JsonTypeObject(result))
+        return Ok(JsonTypeObject(Object(result)))
     }
 
     loop {
@@ -63,7 +63,7 @@ fn parse_object(state: &mut State) -> Result<JsonValueType, Error> {
         else {return Err(state.error())}
     }
 
-    Ok(JsonTypeObject(result))
+    Ok(JsonTypeObject(Object(result)))
 
 }
 
@@ -74,7 +74,7 @@ fn parse_array(state: &mut State) -> Result<JsonValueType, Error> {
     // Empty Vector
     if state.peek().is_some_and(|x| x == &']' ) {
         state.take();
-        return Ok(JsonTypeArray(vec));
+        return Ok(JsonTypeArray(Array(vec)));
     }
 
     loop {
@@ -89,7 +89,7 @@ fn parse_array(state: &mut State) -> Result<JsonValueType, Error> {
         }
     }
 
-    return Ok(JsonTypeArray(vec));
+    return Ok(JsonTypeArray(Array(vec)));
 }
 
 fn parse_number(state: &mut State) -> Result<JsonValueType, Error> {
